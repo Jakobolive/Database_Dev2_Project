@@ -1,0 +1,38 @@
+name: Deploy Eleventy Site to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on push to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Use Node.js version 14 (or your desired version)
+
+    # Install dependencies
+    - name: Install dependencies
+      run: |
+        npm install
+
+    # Build the Eleventy site
+    - name: Build with Eleventy
+      run: |
+        npx eleventy  # Generates the site in the _site folder
+
+    # Deploy to GitHub Pages
+    - name: Deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: gh-pages  # The branch where GitHub Pages will pull the site from
+        folder: _site  # The folder where the Eleventy build output is stored
