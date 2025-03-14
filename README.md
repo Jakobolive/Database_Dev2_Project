@@ -12,7 +12,7 @@ The project is built using **Eleventy (11ty)** for static site generation, **Nun
 ---
 
 ## 🚀 Live Demo
-🔗 **[View the Website on Vercel](https://your-vercel-url.vercel.app/)**  
+🔗 **[View the Website on Vercel](https://database-dev2-project-git-main-jakob-olives-projects.vercel.app)**  
 
 ---
 
