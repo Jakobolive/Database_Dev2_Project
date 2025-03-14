@@ -40,7 +40,7 @@ permalink: /login/
 
             try {
                 // Send login request to the server
-                const response = await fetch("/_api/submit-login", {
+                const response = await fetch("/api/submit-login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
