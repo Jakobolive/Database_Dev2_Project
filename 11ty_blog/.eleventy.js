@@ -1,5 +1,6 @@
+// Ensure .env is loaded early
 const dotenv = require('dotenv');
-dotenv.config(); // Ensure .env is loaded early
+dotenv.config(); 
 
 module.exports = function(eleventyConfig) {
     // Passthrough Bootstrap CSS and JS

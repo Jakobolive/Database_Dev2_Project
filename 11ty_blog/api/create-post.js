@@ -1,12 +1,14 @@
+// Constants Needed.
 const { createClient } = require('@supabase/supabase-js');
-
+// Create Supabase client
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
-
+// Export functionality
 export default async function handler(req, res) {
   if (req.method === 'POST') {
+    // Get the data from the request body
     const { blog_title, message } = req.body;
     const user = JSON.parse(req.headers['x-user']); // Get user info from the request headers
 
