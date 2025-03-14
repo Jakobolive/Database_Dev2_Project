@@ -25,7 +25,7 @@ jobs:
       run: |
         npm install
 
-    # Build the Eleventy site
+    # Build with Eleventy
     - name: Build with Eleventy
       run: |
         npx eleventy  # Generates the site in the _site folder
