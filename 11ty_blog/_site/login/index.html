@@ -60,8 +60,7 @@
             const password = document.getElementById("password").value;
 
             try {
-                // Send login request to the server
-                const response = await fetch("/_api/submit-login", {
+                const response = await fetch("/api/submit-login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -69,10 +68,14 @@
                     body: JSON.stringify({ email, password }),
                 });
 
+                // Check if the response is okay
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
 
                 if (data.success) {
-                    // On success, store login status and user email in localStorage
                     localStorage.setItem("isLoggedIn", "true");
                     localStorage.setItem("userEmail", email);
                     localStorage.setItem("user", JSON.stringify(data.user)); 

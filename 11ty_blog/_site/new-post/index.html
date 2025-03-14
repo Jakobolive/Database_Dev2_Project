@@ -45,18 +45,20 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Ensure the user is logged in before proceeding
         if (localStorage.getItem("isLoggedIn") !== "true") {
             alert("You must be logged in to create a post.");
-            window.location.href = "/login"; // Redirect to login
+            window.location.href = "/login"; // Redirect to login page if not logged in
         }
     });
 
+    // Handle form submission
     document.getElementById("postForm").addEventListener("submit", async function(event) {
-        event.preventDefault();
+        event.preventDefault(); // Prevent default form submission
 
         const blog_title = document.getElementById("title").value;
         const message = document.getElementById("message").value;
-        const user = JSON.parse(localStorage.getItem("user"));  // Retrieve user details
+        const user = JSON.parse(localStorage.getItem("user")); // Retrieve user details from localStorage
 
         if (!user) {
             alert("You must be logged in to post!");
@@ -64,25 +66,28 @@
         }
 
         try {
-            const response = await fetch("/_api/create-post", {
+            // Send blog post data to the API
+            const response = await fetch("/api/create-post", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-user": JSON.stringify(user) // Send user data in headers
+                    "x-user": JSON.stringify(user) // Send user data in headers for backend processing
                 },
                 body: JSON.stringify({ blog_title, message })
             });
 
+            // Handle the response from the backend
             const data = await response.json();
-            if (data.success) {
+
+            if (response.ok && data.success) {
                 alert("Blog post submitted!");
-                window.location.href = "/"; // Redirect to home
+                window.location.href = "/"; // Redirect to homepage upon success
             } else {
-                alert("Error: " + data.message);
+                alert("Error: " + data.message); // Display any error message
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Failed to submit post.");
+            alert("Failed to submit post. Please try again.");
         }
     });
 </script>
