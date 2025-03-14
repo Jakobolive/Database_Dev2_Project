@@ -45,6 +45,7 @@
 </div>
 
 <script>
+    // Ensure content loaded properly.
     document.addEventListener("DOMContentLoaded", function () {
         const loginForm = document.getElementById("login-form");
 
@@ -52,13 +53,14 @@
             console.error("Login form not found!");
             return;
         }
-
+        // Handle submit logic
         loginForm.addEventListener("submit", async function (e) {
             e.preventDefault(); // Stop the page from refreshing
 
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
-
+            
+            // Redirect it to api route.
             try {
                 const response = await fetch(`${window.location.origin}/api/submit-login`, {
                     method: "POST",
@@ -72,7 +74,7 @@
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-
+                // Return data
                 const data = await response.json();
 
                 if (data.success) {
@@ -85,6 +87,7 @@
                 } else {
                     alert("Invalid email or password. Please try again.");
                 }
+            // Handle errors
             } catch (error) {
                 console.error("Error during login:", error);
                 alert("An error occurred. Please try again later.");
@@ -100,6 +103,7 @@
     </footer>
 
     <script>
+        // Check content loaded
         document.addEventListener("DOMContentLoaded", function () {
             const loginButton = document.getElementById("login-button");
             const logoutButton = document.getElementById("logout-button");

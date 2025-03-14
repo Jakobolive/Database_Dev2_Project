@@ -44,8 +44,9 @@
 </div>
 
 <script>
+    
+    // Ensure the user is logged in before proceeding
     document.addEventListener("DOMContentLoaded", function () {
-        // Ensure the user is logged in before proceeding
         if (localStorage.getItem("isLoggedIn") !== "true") {
             alert("You must be logged in to create a post.");
             window.location.href = "/login"; // Redirect to login page if not logged in
@@ -59,7 +60,7 @@
         const blog_title = document.getElementById("title").value;
         const message = document.getElementById("message").value;
         const user = JSON.parse(localStorage.getItem("user")); // Retrieve user details from localStorage
-
+        // Check for user.
         if (!user) {
             alert("You must be logged in to post!");
             return;
@@ -99,6 +100,7 @@
     </footer>
 
     <script>
+        // Check content loaded
         document.addEventListener("DOMContentLoaded", function () {
             const loginButton = document.getElementById("login-button");
             const logoutButton = document.getElementById("logout-button");
