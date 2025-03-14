@@ -1,0 +1,26 @@
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 800px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #343a40;
+}
+
+p {
+    font-size: 1.2rem;
+    color: #495057;
+    line-height: 1.6;
+}
+
+a.btn {
+    font-size: 1.1rem;
+    padding: 0.75rem 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aunt Rosie&#39;s Blog - Home</title>
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/bootstrap.min.css">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/_includes/styles.css">
     <!-- Custom Styles -->
 </head>
 <body>
@@ -28,44 +28,58 @@
 <div class="container mt-4">
   <h1 class="mb-4">Blog Posts</h1>
   </br>
-  <!-- The posts will be rendered dynamically here by JavaScript -->
   <div id="blog-posts" class="row g-4"></div>
 
   <div class="pagination mt-4">
-    
-    
+    <a id="prev-page" href="#" class="btn btn-primary" style="display: none;">Previous</a>
+    <a id="next-page" href="#" class="btn btn-primary" style="display: none;">Next</a>
   </div>
 </div>
 
 <script type="module">
-  // Importing the script with the UMD version
   import 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js';
 
   const SUPABASE_URL = "https://nqcserhbdtubmzrgcpeb.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xY3NlcmhiZHR1Ym16cmdjcGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE4MDM5NjcsImV4cCI6MjA1NzM3OTk2N30.7uJL2OWMvxJaFbwVC7oHte8_jdbjSuHjIfVUP09lQZc";
+  const POSTS_PER_PAGE = 5; // Matches the pagination size
 
-  // Initialize Supabase client
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  function getCurrentPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return parseInt(urlParams.get("page")) || 1;
+  }
+
   async function fetchPosts() {
-    let { data, error } = await supabase
+    const currentPage = getCurrentPage();
+    const start = (currentPage - 1) * POSTS_PER_PAGE;
+    const end = start + POSTS_PER_PAGE - 1;
+
+    // Fetch posts within the range
+    let { data, error, count } = await supabase
       .from("blog_table")
-      .select("*")
-      .order("published_date", { ascending: false });
+      .select("*", { count: "exact" }) // Get total count of posts
+      .order("published_date", { ascending: false })
+      .range(start, end);
 
     if (error) {
       console.error("Error fetching blog posts:", error);
       return;
     }
 
+    const totalPages = Math.ceil(count / POSTS_PER_PAGE);
+    renderPosts(data);
+    updatePaginationControls(currentPage, totalPages);
+  }
+
+  function renderPosts(posts) {
     const postsContainer = document.getElementById("blog-posts");
     postsContainer.innerHTML = ""; // Clear previous posts
 
-    data.forEach(post => {
+    posts.forEach(post => {
       const postElement = document.createElement("div");
-      postElement.classList.add("col-12"); // Ensures posts take full width (single column)
+      postElement.classList.add("col-12");
 
-      // Keeping the same card structure as in your original HTML
       postElement.innerHTML = `
         <article class="card">
           <div class="card-body">
@@ -79,7 +93,25 @@
     });
   }
 
-  // Call fetchPosts to load the blog posts from Supabase
+  function updatePaginationControls(currentPage, totalPages) {
+    const prevButton = document.getElementById("prev-page");
+    const nextButton = document.getElementById("next-page");
+
+    if (currentPage > 1) {
+      prevButton.href = `?page=${currentPage - 1}`;
+      prevButton.style.display = "inline-block";
+    } else {
+      prevButton.style.display = "none";
+    }
+
+    if (currentPage < totalPages) {
+      nextButton.href = `?page=${currentPage + 1}`;
+      nextButton.style.display = "inline-block";
+    } else {
+      nextButton.style.display = "none";
+    }
+  }
+
   fetchPosts();
 </script>
 
