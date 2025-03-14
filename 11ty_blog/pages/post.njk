@@ -1,0 +1,17 @@
+---
+title: {{ post.title }}
+layout: base.njk
+permalink: /posts/{{ post.id }}/
+---
+
+<div class="container mt-5">
+    <h1 class="mb-4">{{ post.title }}</h1>
+
+    <p><strong>By:</strong> {{ post.author }} | <strong>Published:</strong> {{ post.published_date }}</p>
+
+    <div class="post-message mt-4">
+        <p>{{ post.message }}</p>
+    </div>
+
+    <a href="/" class="btn btn-secondary mt-4">Back to Home</a>
+</div>

@@ -1,0 +1,67 @@
+---
+title: Write a Blog Post
+layout: base.njk
+permalink: /new-post/
+---
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Create a New Blog Post</h1>
+
+    <form id="postForm" class="col-md-6 offset-md-3">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input type="text" id="title" name="title" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="message" class="form-label">Message:</label>
+            <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Submit Post</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (localStorage.getItem("isLoggedIn") !== "true") {
+            alert("You must be logged in to create a post.");
+            window.location.href = "/login"; // Redirect to login
+        }
+    });
+
+    document.getElementById("postForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const blog_title = document.getElementById("title").value;
+        const message = document.getElementById("message").value;
+        const user = JSON.parse(localStorage.getItem("user"));  // Retrieve user details
+
+        if (!user) {
+            alert("You must be logged in to post!");
+            return;
+        }
+
+        try {
+            const response = await fetch("/submit-post", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-user": JSON.stringify(user) // Send user data in headers
+                },
+                body: JSON.stringify({ blog_title, message })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert("Blog post submitted!");
+                window.location.href = "/"; // Redirect to home
+            } else {
+                alert("Error: " + data.message);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Failed to submit post.");
+        }
+    });
+</script>

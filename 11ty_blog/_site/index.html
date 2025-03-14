@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aunt Rosie&#39;s Blog - Home</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/bootstrap.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <!-- Custom Styles -->
+</head>
+<body>
+    <header class="bg-primary text-white py-3">
+        <div class="container">
+            <h1 class="h3">Aunt Rosie's Blog</h1>
+            <nav>
+                <a href="/" class="btn btn-outline-light me-3">Home</a>
+                <a href="/about" class="btn btn-outline-light me-3">About</a>
+                <a href="/new-post/" id="write-post-link" class="btn btn-outline-light me-3" style="display: none;">New Post</a> 
+                <a href="/login" id="login-button" class="btn btn-outline-light me-3">Login</a> 
+                <a href="#" id="logout-button" class="btn btn-outline-light" style="display: none;">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-4">
+        
+<div class="container mt-4">
+  <h1 class="mb-4">Blog Posts</h1>
+  </br>
+  <!-- The posts will be rendered dynamically here by JavaScript -->
+  <div id="blog-posts" class="row g-4"></div>
+
+  <div class="pagination mt-4">
+    
+    
+  </div>
+</div>
+
+<script type="module">
+  // Importing the script with the UMD version
+  import 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js';
+
+  const SUPABASE_URL = "https://nqcserhbdtubmzrgcpeb.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xY3NlcmhiZHR1Ym16cmdjcGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE4MDM5NjcsImV4cCI6MjA1NzM3OTk2N30.7uJL2OWMvxJaFbwVC7oHte8_jdbjSuHjIfVUP09lQZc";
+
+  // Initialize Supabase client
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function fetchPosts() {
+    let { data, error } = await supabase
+      .from("blog_table")
+      .select("*")
+      .order("published_date", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching blog posts:", error);
+      return;
+    }
+
+    const postsContainer = document.getElementById("blog-posts");
+    postsContainer.innerHTML = ""; // Clear previous posts
+
+    data.forEach(post => {
+      const postElement = document.createElement("div");
+      postElement.classList.add("col-12"); // Ensures posts take full width (single column)
+
+      // Keeping the same card structure as in your original HTML
+      postElement.innerHTML = `
+        <article class="card">
+          <div class="card-body">
+            <h2 class="card-title">${post.blog_title}</h2>
+            <p class="card-text"><strong>By ${post.author}</strong> - <span class="date">${new Date(post.published_date).toLocaleDateString()}</span></p>
+            <p class="card-text">${post.message}</p>
+          </div>
+        </article>
+      `;
+      postsContainer.appendChild(postElement);
+    });
+  }
+
+  // Call fetchPosts to load the blog posts from Supabase
+  fetchPosts();
+</script>
+
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p>© 2025 Aunt Rosie's Pies & Perseveres. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginButton = document.getElementById("login-button");
+            const logoutButton = document.getElementById("logout-button");
+            const writePostLink = document.getElementById("write-post-link");
+
+            // Check if user is logged in
+            if (localStorage.getItem("isLoggedIn") === "true") {
+                loginButton.style.display = "none"; 
+                logoutButton.style.display = "inline"; 
+                writePostLink.style.display = "inline";  
+            } else {
+                loginButton.style.display = "inline"; 
+                logoutButton.style.display = "none"; 
+                writePostLink.style.display = "none";  
+            }
+
+            // Logout function
+            logoutButton.addEventListener("click", function () {
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userEmail"); 
+                localStorage.clear(); // Removes all stored data
+                alert("Logged out successfully!");
+                window.location.href = "/"; // Redirect to home
+            });
+        });
+    </script>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+</html>
+

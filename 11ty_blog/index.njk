@@ -1,0 +1,71 @@
+---
+layout: base.njk
+title: Aunt Rosie's Blog - Home
+permalink: /
+pagination:
+  data: posts
+  size: 5
+  alias: post
+---
+
+<div class="container mt-4">
+  <h1 class="mb-4">Blog Posts</h1>
+  </br>
+  <!-- The posts will be rendered dynamically here by JavaScript -->
+  <div id="blog-posts" class="row g-4"></div>
+
+  <div class="pagination mt-4">
+    {% if pagination.href.previous %}
+      <a href="{{ pagination.href.previous }}" class="btn btn-primary">Previous</a>
+    {% endif %}
+    {% if pagination.href.next %}
+      <a href="{{ pagination.href.next }}" class="btn btn-primary">Next</a>
+    {% endif %}
+  </div>
+</div>
+
+<script type="module">
+  // Importing the script with the UMD version
+  import 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js';
+
+  const SUPABASE_URL = "{{ SUPABASE_URL }}";
+  const SUPABASE_ANON_KEY = "{{ SUPABASE_ANON_KEY }}";
+
+  // Initialize Supabase client
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function fetchPosts() {
+    let { data, error } = await supabase
+      .from("blog_table")
+      .select("*")
+      .order("published_date", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching blog posts:", error);
+      return;
+    }
+
+    const postsContainer = document.getElementById("blog-posts");
+    postsContainer.innerHTML = ""; // Clear previous posts
+
+    data.forEach(post => {
+      const postElement = document.createElement("div");
+      postElement.classList.add("col-12"); // Ensures posts take full width (single column)
+
+      // Keeping the same card structure as in your original HTML
+      postElement.innerHTML = `
+        <article class="card">
+          <div class="card-body">
+            <h2 class="card-title">${post.blog_title}</h2>
+            <p class="card-text"><strong>By ${post.author}</strong> - <span class="date">${new Date(post.published_date).toLocaleDateString()}</span></p>
+            <p class="card-text">${post.message}</p>
+          </div>
+        </article>
+      `;
+      postsContainer.appendChild(postElement);
+    });
+  }
+
+  // Call fetchPosts to load the blog posts from Supabase
+  fetchPosts();
+</script>

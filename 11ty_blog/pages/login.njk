@@ -1,0 +1,70 @@
+---
+title: Login
+layout: base.njk
+permalink: /login/
+---
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Login to Aunt Rosie's Blog</h1>
+
+    <form id="login-form" class="col-md-6 offset-md-3">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+    </form>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const loginForm = document.getElementById("login-form");
+
+        if (!loginForm) {
+            console.error("Login form not found!");
+            return;
+        }
+
+        loginForm.addEventListener("submit", async function (e) {
+            e.preventDefault(); // Stop the page from refreshing
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                // Send login request to the server
+                const response = await fetch("/submit-login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // On success, store login status and user email in localStorage
+                    localStorage.setItem("isLoggedIn", "true");
+                    localStorage.setItem("userEmail", email);
+                    localStorage.setItem("user", JSON.stringify(data.user)); 
+
+                    alert("Login successful!");
+                    window.location.href = "/"; // Redirect to homepage
+                } else {
+                    alert("Invalid email or password. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error during login:", error);
+                alert("An error occurred. Please try again later.");
+            }
+        });
+    });
+</script>
