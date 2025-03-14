@@ -3,7 +3,8 @@
   "builds": [
     {
       "src": "11ty_blog/**/*",
-      "use": "@vercel/static"
+      "use": "@vercel/static",
+      "dest": "/"
     },
     {
       "src": "api/**/*.js",
@@ -17,7 +18,8 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/11ty_blog/$1"
+      "dest": "/11ty_blog/_site/$1"
     }
   ]
 }
+
