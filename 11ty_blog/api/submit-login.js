@@ -1,10 +1,14 @@
 const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcryptjs');
 
+console.log("Supabase URL:", process.env.SUPABASE_URL);
+console.log("Supabase Key:", process.env.SUPABASE_KEY);
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
+  process.env.SUPABASE_ANON_KEY
 );
+
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -13,7 +17,7 @@ export default async function handler(req, res) {
       
       const { data: user, error } = await supabase
         .from('employees_table')
-        .select('id, email, password, name')
+        .select('*')
         .eq('email', email)
         .single();
       

@@ -46,7 +46,7 @@ permalink: /new-post/
 
         try {
             // Send blog post data to the API
-            const response = await fetch("/api/create-post", {
+            const response = await fetch(`${window.location.origin}/api/create-post`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

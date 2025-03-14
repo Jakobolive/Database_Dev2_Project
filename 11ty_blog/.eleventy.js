@@ -1,8 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config(); // Ensure .env is loaded early
 
-const supabase = require('./_data/supabase'); // Import once
-
 module.exports = function(eleventyConfig) {
     // Passthrough Bootstrap CSS and JS
     eleventyConfig.addPassthroughCopy({

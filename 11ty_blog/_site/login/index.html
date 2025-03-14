@@ -60,7 +60,7 @@
             const password = document.getElementById("password").value;
 
             try {
-                const response = await fetch("/api/submit-login", {
+                const response = await fetch(`${window.location.origin}/api/submit-login`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
