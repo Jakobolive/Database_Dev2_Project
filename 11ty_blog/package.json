@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "rebuild": "@11ty/eleventy --output=_site",
-    "dev": "concurrently \"eleventy --watch\" \"nodemon server.js\""
+    "build": "npx @11ty/eleventy",
+    "start": "npx @11ty/eleventy --serve"
   },
   "keywords": [],
   "author": "",
