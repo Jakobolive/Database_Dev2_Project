@@ -9,9 +9,6 @@ CREATE TABLE blog_table (
     FOREIGN KEY (employee_id) REFERENCES employees_table(id) ON DELETE CASCADE
 );
 
--- Enable pgcrypto extension possibly needed if ran out of Supabase. (run once)
---CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
 -- Insert a test entry into the blog_table, linking to Aunt Rosie's employee ID.
 INSERT INTO blog_table (blog_title, author, message, published_date, employee_id)
 VALUES (
