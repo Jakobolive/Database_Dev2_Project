@@ -1,4 +1,8 @@
+import 'package:database_project/services/data_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 class LoginPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -6,7 +10,7 @@ class LoginPage extends StatelessWidget {
 
   // Login functionality.
   Future<void> _login(BuildContext context) async {
-    // final supabase = Supabase.instance.client;
+    final supabase = Supabase.instance.client;
 
     // Basic input validation to ensure we're not dealing with empty strings.
     if (emailController.text.isEmpty) {
@@ -20,6 +24,50 @@ class LoginPage extends StatelessWidget {
         SnackBar(content: Text("Password Is Required")),
       );
       return;
+    }
+    try {
+      // Fetch the user record by email
+      final response = await supabase
+          .from('employees_table')
+          .select('*')
+          .eq('email', emailController.text.trim())
+          .single(); // Ensures we only get one user
+
+      if (response != null) {
+        final storedHashedPassword = response['password'];
+
+        // Compare input password with stored hash
+        final isPasswordCorrect = BCrypt.checkpw(
+            passwordController.text.trim(), storedHashedPassword);
+
+        if (isPasswordCorrect) {
+          final String name = response['name'];
+          final int id = response['id'];
+
+          Provider.of<DataProvider>(context, listen: false).setUser({
+            'id': id,
+            'name': name,
+            // Add any other data you need from `response`
+          });
+
+          print("Login successful! User: $name");
+
+          Navigator.pushReplacementNamed(context, '/sale-tracking');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Incorrect email or password")),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("User not found")),
+        );
+      }
+    } catch (e) {
+      // If there was an error during the query or login
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
     }
   }
 
@@ -84,25 +132,25 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               // Forgot Password / Sign Up Links
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      // Implement forgot password functionality here
-                      Navigator.pushNamed(context, '/signup');
-                    },
-                    child: const Text("Forgot Password?"),
-                  ),
-                  const Text("|"),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/signup');
-                    },
-                    child: const Text("Sign Up"),
-                  ),
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              // TextButton(
+              //   onPressed: () {
+              //     // Implement forgot password functionality here
+              //     Navigator.pushNamed(context, '/signup');
+              //   },
+              //   child: const Text("Forgot Password?"),
+              // ),
+              // const Text("|"),
+              // TextButton(
+              //   onPressed: () {
+              //     Navigator.pushNamed(context, '/signup');
+              //   },
+              //   child: const Text("Sign Up"),
+              // ),
+              // ],
+              // ),
             ],
           ),
         ),
