@@ -23,3 +23,15 @@ CREATE POLICY "Public Read Product Variations"
 ON product_variation_table
 FOR SELECT
 USING (true);
+
+-- Allow anyone to update.
+CREATE POLICY "Public Update Product Variations"
+ON product_variation_table
+FOR UPDATE
+USING (true);
+
+-- ALlow Public Insert Access
+CREATE POLICY "Public Insert Product Variations"
+ON product_variation_table
+FOR INSERT
+WITH CHECK (true);

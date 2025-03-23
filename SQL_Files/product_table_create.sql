@@ -21,3 +21,15 @@ CREATE POLICY "Public Read Products"
 ON product_table
 FOR SELECT
 USING (true);
+
+-- Allow Public Insert Access
+CREATE POLICY "Public Insert Products"
+ON product_table
+FOR INSERT
+WITH CHECK (true);
+
+-- ALlow Public Update Access
+CREATE POLICY "Public Update Products"
+ON product_table
+FOR UPDATE
+WITH CHECK (true);

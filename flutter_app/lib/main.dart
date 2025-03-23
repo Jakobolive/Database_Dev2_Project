@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:database_project/pages/add_product_page.dart';
+import 'package:database_project/pages/cart_page.dart';
 import 'package:database_project/pages/home_page.dart';
 import 'package:database_project/pages/label_preview_page.dart';
 import 'package:database_project/pages/login_page.dart';
@@ -11,7 +12,8 @@ import 'package:database_project/pages/reporting_page.dart';
 import 'package:database_project/pages/sale_tracking_page.dart';
 
 void main() async {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter is ready
+
   await Supabase.initialize(
     url: 'https://nqcserhbdtubmzrgcpeb.supabase.co',
     anonKey:
@@ -21,19 +23,19 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => DataProvider()),
+        ChangeNotifierProvider(
+          create: (context) =>
+              DataProvider()..fetchProducts(), // Fetch after Supabase init
+        ),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
 
-// final supabase = Supabase.instance.client;
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -46,6 +48,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login', // Start at login page
       routes: {
         '/add-product': (context) => AddProductPage(),
+        '/cart': (context) => CartPage(),
         '/': (context) => HomePage(),
         '/label-preview': (context) => LabelPreviewPage(),
         '/login': (context) => LoginPage(),
