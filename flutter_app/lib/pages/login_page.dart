@@ -52,7 +52,7 @@ class LoginPage extends StatelessWidget {
 
           print("Login successful! User: $name");
 
-          Navigator.pushReplacementNamed(context, '/sale-tracking');
+          Navigator.pushReplacementNamed(context, '/');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Incorrect email or password")),

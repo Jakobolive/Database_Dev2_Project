@@ -124,61 +124,246 @@ class DataProvider extends ChangeNotifier {
       print("❌ Error submitting sale: $e");
     }
   }
-  // Future<void> completeSale() async {
-  //   if (_cart.isEmpty) return;
 
+  // Future<Map<String, dynamic>> fetchSalesReport(String period) async {
   //   try {
-  //     // Step 1: Insert the sale into the sales_table (without variations yet)
-  //     final saleResponse = await supabase.from('sales_table').insert({
-  //       'total_price': _cart.fold(
-  //           0.0, (sum, item) => sum + (item['cost'] * item['quantity'])),
-  //       'sale_date': DateTime.now().toIso8601String(),
-  //     });
+  //     DateTime now = DateTime.now();
+  //     DateTime startDate;
 
-  //     // Check for errors in saleResponse
-  //     if (saleResponse.error != null || saleResponse.data.isEmpty) {
-  //       throw Exception(
-  //           'Failed to create sale: ${saleResponse.error?.message}');
+  //     switch (period) {
+  //       case 'today':
+  //         startDate = DateTime(now.year, now.month, now.day);
+  //         break;
+  //       case 'this_week':
+  //         startDate = now.subtract(
+  //             Duration(days: now.weekday - 1)); // Start of the week (Monday)
+  //         break;
+  //       case 'this_month':
+  //         startDate = DateTime(now.year, now.month, 1);
+  //         break;
+  //       case 'this_year':
+  //         startDate = DateTime(now.year, 1, 1);
+  //         break;
+  //       default:
+  //         throw Exception("Invalid period");
   //     }
 
-  //     // Get the sale_id from the insert response
-  //     final saleId = saleResponse.data[0]['sale_id'];
+  //     // Fetch sales data, grouped by sale_date
+  //     final salesData = await supabase
+  //         .from('sales_table')
+  //         .select('sale_id, sale_date, total_price')
+  //         .gte('sale_date', startDate.toIso8601String())
+  //         .order('sale_date');
 
-  //     // Step 2: Insert items into sales_variations_table to link variations to this sale
-  //     for (var item in _cart) {
-  //       final salesVariationResponse =
-  //           await supabase.from('sales_variations_table').insert({
-  //         'sale_id': saleId,
-  //         'variation_id': item['variation_id'],
-  //         'quantity': item['quantity'],
-  //       }).select();
-
-  //       // Debugging print statements
-  //       print("Sales Variation Insert Response: $salesVariationResponse");
-
-  //       // Check for errors in salesVariationResponse
-  //       if (salesVariationResponse == null || salesVariationResponse.isEmpty) {
-  //         throw Exception('Failed to insert sale variation: Response is empty');
-  //       }
-
-  //       // Step 3: Reduce stock in product_variation_table
-  //       final productVariationResponse =
-  //           await supabase.from('product_variation_table').update({
-  //         'stock': item['stock'] - item['quantity'],
-  //       }).match({'variation_id': item['variation_id']});
-
-  //       // Check for errors in productVariationResponse
-  //       if (productVariationResponse.error != null) {
-  //         throw Exception(
-  //             'Failed to update product variation stock: ${productVariationResponse.error?.message}');
+  //     Map<String, double> dailySales = {};
+  //     for (var sale in salesData) {
+  //       String saleDate = sale['sale_date']?.substring(0, 10) ?? '';
+  //       double totalPrice =
+  //           sale['total_price'] is double ? sale['total_price'] : 0.0;
+  //       if (saleDate.isNotEmpty) {
+  //         dailySales[saleDate] = dailySales.containsKey(saleDate)
+  //             ? dailySales[saleDate]! + totalPrice
+  //             : totalPrice;
   //       }
   //     }
 
-  //     // Clear the cart after the sale is complete
-  //     _cart.clear();
-  //     notifyListeners();
+  //     final sortedDailySales = Map.fromEntries(
+  //       dailySales.entries.toList()..sort((a, b) => b.key.compareTo(a.key)),
+  //     );
+
+  //     double totalProfit =
+  //         sortedDailySales.values.fold(0.0, (sum, sale) => sum + sale);
+
+  //     List<int> saleIds = salesData
+  //         .map<int>((sale) => sale['sale_id'] as int? ?? 0)
+  //         .where((id) => id != 0)
+  //         .toList();
+
+  //     int totalItemsSold = 0;
+  //     Map<String, int> productSummary =
+  //         {}; // Flat map of product variation with size -> quantity
+
+  //     if (saleIds.isNotEmpty) {
+  //       // Fetch sales variations data (NO product_id here)
+  //       final salesVariations = await supabase
+  //           .from('sales_variations_table')
+  //           .select(
+  //               'sale_id, variation_id, quantity') // Only variation_id and quantity
+  //           .inFilter('sale_id', saleIds);
+
+  //       // Fetch product variation data (with product_id and size)
+  //       final variationsData = await supabase
+  //           .from('product_variation_table')
+  //           .select('variation_id, ,product_id size'); // Just variation_id and size
+
+  //       Map<int, String> variationSizeMap = {};
+  //       for (var variation in variationsData) {
+  //         int variationId = variation['variation_id'];
+  //         String size = variation['size'] ?? 'Unknown Size';
+  //         variationSizeMap[variationId] = size;
+  //       }
+
+  //       for (var variation in salesVariations) {
+  //         int variationId = variation['variation_id'];
+  //         int quantity = variation['quantity'] as int? ?? 0;
+
+  //         // Find the size based on variation_id
+  //         String size = variationSizeMap[variationId] ?? 'Unknown Size';
+
+  //         // Accumulate the quantity sold by size
+  //         productSummary[size] = (productSummary[size] ?? 0) + quantity;
+  //       }
+
+  //       totalItemsSold = salesVariations.fold(
+  //           0, (sum, item) => sum + (item['quantity'] as int? ?? 0));
+  //     }
+
+  //     return {
+  //       'totalProfit': totalProfit,
+  //       'totalItemsSold': totalItemsSold,
+  //       'dailySales': sortedDailySales,
+  //       'productSummary': productSummary,
+  //     };
   //   } catch (e) {
-  //     print("Error submitting sale: $e");
+  //     print("Error fetching sales report: $e");
+  //     return {
+  //       'totalProfit': 0.0,
+  //       'totalItemsSold': 0,
+  //       'dailySales': {},
+  //       'productSummary': {},
+  //     };
   //   }
   // }
+  Future<Map<String, dynamic>> fetchSalesReport(String period) async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime startDate;
+
+      switch (period) {
+        case 'today':
+          startDate = DateTime(now.year, now.month, now.day);
+          break;
+        case 'this_week':
+          startDate = now.subtract(
+              Duration(days: now.weekday - 1)); // Start of the week (Monday)
+          break;
+        case 'this_month':
+          startDate = DateTime(now.year, now.month, 1);
+          break;
+        case 'this_year':
+          startDate = DateTime(now.year, 1, 1);
+          break;
+        default:
+          throw Exception("Invalid period");
+      }
+
+      // Fetch sales data, grouped by sale_date
+      final salesData = await supabase
+          .from('sales_table')
+          .select('sale_id, sale_date, total_price')
+          .gte('sale_date', startDate.toIso8601String())
+          .order('sale_date');
+
+      Map<String, double> dailySales = {};
+      for (var sale in salesData) {
+        String saleDate = sale['sale_date']?.substring(0, 10) ?? '';
+        double totalPrice =
+            sale['total_price'] is double ? sale['total_price'] : 0.0;
+        if (saleDate.isNotEmpty) {
+          dailySales[saleDate] = dailySales.containsKey(saleDate)
+              ? dailySales[saleDate]! + totalPrice
+              : totalPrice;
+        }
+      }
+
+      final sortedDailySales = Map.fromEntries(
+        dailySales.entries.toList()..sort((a, b) => b.key.compareTo(a.key)),
+      );
+
+      double totalProfit =
+          sortedDailySales.values.fold(0.0, (sum, sale) => sum + sale);
+
+      List<int> saleIds = salesData
+          .map<int>((sale) => sale['sale_id'] as int? ?? 0)
+          .where((id) => id != 0)
+          .toList();
+
+      int totalItemsSold = 0;
+      Map<String, int> productSummary =
+          {}; // Flat map of product variation with size -> quantity
+
+      if (saleIds.isNotEmpty) {
+        // Fetch sales variations data (NO product_id here)
+        final salesVariations = await supabase
+            .from('sales_variations_table')
+            .select(
+                'sale_id, variation_id, quantity') // Only variation_id and quantity
+            .inFilter('sale_id', saleIds);
+
+        // Fetch product variation data (with product_id and size)
+        final variationsData = await supabase
+            .from('product_variation_table')
+            .select(
+                'variation_id, product_id, size'); // Just variation_id, product_id, and size
+
+        // Fetch product names for all product_ids in the variations data
+        List<int> productIds = variationsData
+            .map<int>((variation) => variation['product_id'] as int)
+            .toList();
+        final productsData = await supabase
+            .from('product_table')
+            .select('product_id, product_name')
+            .inFilter('product_id', productIds);
+
+        Map<int, String> productNamesMap = {};
+        for (var product in productsData) {
+          int productId = product['product_id'];
+          String productName = product['product_name'] ?? 'Unknown Product';
+          productNamesMap[productId] = productName;
+        }
+
+        Map<int, String> variationSizeMap = {};
+        for (var variation in variationsData) {
+          int variationId = variation['variation_id'];
+          String size = variation['size'] ?? 'Unknown Size';
+          variationSizeMap[variationId] = size;
+        }
+
+        for (var variation in salesVariations) {
+          int variationId = variation['variation_id'];
+          int quantity = variation['quantity'] as int? ?? 0;
+
+          // Find the size based on variation_id
+          String size = variationSizeMap[variationId] ?? 'Unknown Size';
+
+          // Find the product_name based on product_id
+          int productId = variationsData.firstWhere(
+              (v) => v['variation_id'] == variationId)['product_id'];
+          String productName = productNamesMap[productId] ?? 'Unknown Product';
+
+          // Accumulate the quantity sold by product name and size
+          String key = '$productName - $size';
+          productSummary[key] = (productSummary[key] ?? 0) + quantity;
+        }
+
+        totalItemsSold = salesVariations.fold(
+            0, (sum, item) => sum + (item['quantity'] as int? ?? 0));
+      }
+
+      return {
+        'totalProfit': totalProfit,
+        'totalItemsSold': totalItemsSold,
+        'dailySales': sortedDailySales,
+        'productSummary': productSummary,
+      };
+    } catch (e) {
+      print("Error fetching sales report: $e");
+      return {
+        'totalProfit': 0.0,
+        'totalItemsSold': 0,
+        'dailySales': {},
+        'productSummary': {},
+      };
+    }
+  }
 }

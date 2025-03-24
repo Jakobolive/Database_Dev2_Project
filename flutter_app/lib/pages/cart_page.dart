@@ -44,7 +44,7 @@ class CartPage extends StatelessWidget {
 
                 // Refresh Products
                 dataProvider.fetchProducts();
-                Navigator.pushReplacementNamed(context, '/sale-tracking');
+                Navigator.pushReplacementNamed(context, '/');
               },
               child: Text("Complete Sale"),
             ),

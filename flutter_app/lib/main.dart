@@ -49,12 +49,12 @@ class MyApp extends StatelessWidget {
       routes: {
         '/add-product': (context) => AddProductPage(),
         '/cart': (context) => CartPage(),
-        '/': (context) => HomePage(),
+        // '/': (context) => HomePage(),
         '/label-preview': (context) => LabelPreviewPage(),
         '/login': (context) => LoginPage(),
-        '/product-list': (context) => ProductListPage(),
-        '/reports': (context) => ReportingPage(),
-        '/sale-tracking': (context) => SaleTrackingPage(),
+        //'/product-list': (context) => ProductListPage(),
+        //'/reports': (context) => ReportingPage(),
+        '/': (context) => MainScreen(),
       },
     );
   }
@@ -70,8 +70,7 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    SaleTrackingPage(), // Replacing the recursive MainScreen() call
-    // MessengerApp(),
+    SaleTrackingPage(),
     ProductListPage(),
     ReportingPage(),
   ];
@@ -91,7 +90,6 @@ class _MainScreenState extends State<MainScreen> {
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.money), label: 'Sales'),
-          //  BottomNavigationBarItem(icon: Icon(Icons.message), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Products'),
           BottomNavigationBarItem(
               icon: Icon(Icons.bar_chart), label: 'Reports'),
