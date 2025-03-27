@@ -44,6 +44,29 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
+  // Function to get a product by its ID
+  Future<Map<String, dynamic>?> getProductById(String productId) async {
+    try {
+      final product = _products.firstWhere(
+          (product) => product['product_id'] == productId,
+          orElse: () => null);
+
+      if (product == null) {
+        final response = await supabase
+            .from('product_table')
+            .select()
+            .eq('product_id', productId)
+            .single();
+
+        return response;
+      }
+      return product;
+    } catch (e) {
+      print("Error fetching product by ID: $e");
+      return null;
+    }
+  }
+
   // Add product variation to cart
   void addToCart(Map<String, dynamic> variation) {
     final existingItem = _cart.firstWhere(

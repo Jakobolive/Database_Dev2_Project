@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aunt Rosie&#39;s Blog - Home</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/_includes/styles.css">
+    <!-- Custom Styles -->
+</head>
+<body>
+    <header class="bg-primary text-white py-3">
+        <div class="container">
+            <h1 class="h3">Aunt Rosie's Blog</h1>
+            <nav>
+                <a href="/" class="btn btn-outline-light me-3">Home</a>
+                <a href="/about" class="btn btn-outline-light me-3">About</a>
+                <a href="/new-post/" id="write-post-link" class="btn btn-outline-light me-3" style="display: none;">New Post</a> 
+                <a href="/login" id="login-button" class="btn btn-outline-light me-3">Login</a> 
+                <a href="#" id="logout-button" class="btn btn-outline-light" style="display: none;">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-4">
+        
+<div class="container mt-4">
+  <h1 class="mb-4">Blog Posts</h1>
+  </br>
+  <div id="blog-posts" class="row g-4"></div>
+
+  <div class="pagination mt-4">
+    <a id="prev-page" href="#" class="btn btn-primary" style="display: none;">Previous</a>
+    <a id="next-page" href="#" class="btn btn-primary" style="display: none;">Next</a>
+  </div>
+</div>
+
+<script type="module">
+  import 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js';
+
+  const SUPABASE_URL = "https://nqcserhbdtubmzrgcpeb.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xY3NlcmhiZHR1Ym16cmdjcGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE4MDM5NjcsImV4cCI6MjA1NzM3OTk2N30.7uJL2OWMvxJaFbwVC7oHte8_jdbjSuHjIfVUP09lQZc";
+  const POSTS_PER_PAGE = 5; // Matches the pagination size
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  function getCurrentPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return parseInt(urlParams.get("page")) || 1;
+  }
+
+  async function fetchPosts() {
+    const currentPage = getCurrentPage();
+    const start = (currentPage - 1) * POSTS_PER_PAGE;
+    const end = start + POSTS_PER_PAGE - 1;
+
+    // Fetch posts within the range
+    let { data, error, count } = await supabase
+      .from("blog_table")
+      .select("*", { count: "exact" }) // Get total count of posts
+      .order("published_date", { ascending: false })
+      .range(start, end);
+
+    if (error) {
+      console.error("Error fetching blog posts:", error);
+      return;
+    }
+
+    const totalPages = Math.ceil(count / POSTS_PER_PAGE);
+    renderPosts(data);
+    updatePaginationControls(currentPage, totalPages);
+  }
+
+  function renderPosts(posts) {
+    const postsContainer = document.getElementById("blog-posts");
+    postsContainer.innerHTML = ""; // Clear previous posts
+
+    posts.forEach(post => {
+      const postElement = document.createElement("div");
+      postElement.classList.add("col-12");
+
+      postElement.innerHTML = `
+        <article class="card">
+          <div class="card-body">
+            <h2 class="card-title">${post.blog_title}</h2>
+            <p class="card-text"><strong>By ${post.author}</strong> - <span class="date">${new Date(post.published_date).toLocaleDateString()}</span></p>
+            <p class="card-text">${post.message}</p>
+          </div>
+        </article>
+      `;
+      postsContainer.appendChild(postElement);
+    });
+  }
+
+  function updatePaginationControls(currentPage, totalPages) {
+    const prevButton = document.getElementById("prev-page");
+    const nextButton = document.getElementById("next-page");
+
+    if (currentPage > 1) {
+      prevButton.href = `?page=${currentPage - 1}`;
+      prevButton.style.display = "inline-block";
+    } else {
+      prevButton.style.display = "none";
+    }
+
+    if (currentPage < totalPages) {
+      nextButton.href = `?page=${currentPage + 1}`;
+      nextButton.style.display = "inline-block";
+    } else {
+      nextButton.style.display = "none";
+    }
+  }
+
+  fetchPosts();
+</script>
+
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p>© 2025 Aunt Rosie's Pies & Perseveres. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Check content loaded
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginButton = document.getElementById("login-button");
+            const logoutButton = document.getElementById("logout-button");
+            const writePostLink = document.getElementById("write-post-link");
+
+            // Check if user is logged in
+            if (localStorage.getItem("isLoggedIn") === "true") {
+                loginButton.style.display = "none"; 
+                logoutButton.style.display = "inline"; 
+                writePostLink.style.display = "inline";  
+            } else {
+                loginButton.style.display = "inline"; 
+                logoutButton.style.display = "none"; 
+                writePostLink.style.display = "none";  
+            }
+
+            // Logout function
+            logoutButton.addEventListener("click", function () {
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userEmail"); 
+                localStorage.clear(); // Removes all stored data
+                alert("Logged out successfully!");
+                window.location.href = "/"; // Redirect to home
+            });
+        });
+    </script>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+</html>
+

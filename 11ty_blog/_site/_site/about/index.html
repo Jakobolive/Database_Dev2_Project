@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Aunt Rosie</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/_includes/styles.css">
+    <!-- Custom Styles -->
+</head>
+<body>
+    <header class="bg-primary text-white py-3">
+        <div class="container">
+            <h1 class="h3">Aunt Rosie's Blog</h1>
+            <nav>
+                <a href="/" class="btn btn-outline-light me-3">Home</a>
+                <a href="/about" class="btn btn-outline-light me-3">About</a>
+                <a href="/new-post/" id="write-post-link" class="btn btn-outline-light me-3" style="display: none;">New Post</a> 
+                <a href="/login" id="login-button" class="btn btn-outline-light me-3">Login</a> 
+                <a href="#" id="logout-button" class="btn btn-outline-light" style="display: none;">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-4">
+        
+<div class="container mt-5">
+    <h1 class="mb-4">About Aunt Rosie</h1>
+    <p>Welcome to Aunt Rosie's Blog! Here, I share my delicious pie recipes and fun stories. Stay tuned for more posts!</p>
+    <p>Thank you for visiting, and I hope you enjoy the stories and recipes as much as I love baking them!</p>
+</div>
+
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p>© 2025 Aunt Rosie's Pies & Perseveres. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Check content loaded
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginButton = document.getElementById("login-button");
+            const logoutButton = document.getElementById("logout-button");
+            const writePostLink = document.getElementById("write-post-link");
+
+            // Check if user is logged in
+            if (localStorage.getItem("isLoggedIn") === "true") {
+                loginButton.style.display = "none"; 
+                logoutButton.style.display = "inline"; 
+                writePostLink.style.display = "inline";  
+            } else {
+                loginButton.style.display = "inline"; 
+                logoutButton.style.display = "none"; 
+                writePostLink.style.display = "none";  
+            }
+
+            // Logout function
+            logoutButton.addEventListener("click", function () {
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userEmail"); 
+                localStorage.clear(); // Removes all stored data
+                alert("Logged out successfully!");
+                window.location.href = "/"; // Redirect to home
+            });
+        });
+    </script>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+</html>
+
