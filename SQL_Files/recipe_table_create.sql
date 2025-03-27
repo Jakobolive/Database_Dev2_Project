@@ -20,3 +20,15 @@ CREATE POLICY "Public Read Recipes"
 ON recipes_table
 FOR SELECT
 USING (true);
+
+-- ALlow Public Insert Access
+CREATE POLICY "Public Insert Recipes"
+ON recipes_table
+FOR INSERT
+WITH CHECK (true);
+
+-- Allow anyone to update.
+CREATE POLICY "Public Update Recipes"
+ON recipes_table
+FOR UPDATE
+USING (true);

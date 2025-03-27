@@ -3,11 +3,23 @@ import 'package:database_project/services/data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SaleTrackingPage extends StatelessWidget {
+class SaleTrackingPage extends StatefulWidget {
+  @override
+  _SaleTrackingPageState createState() => _SaleTrackingPageState();
+}
+
+class _SaleTrackingPageState extends State<SaleTrackingPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Call the fetchProfiles method here to load profiles when the page is first loaded.
+    final dataProvider = Provider.of<DataProvider>(context, listen: false);
+    dataProvider.fetchProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
     final dataProvider = Provider.of<DataProvider>(context);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
