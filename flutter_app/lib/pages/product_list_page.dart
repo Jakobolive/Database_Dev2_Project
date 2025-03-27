@@ -1,5 +1,6 @@
 import 'package:database_project/pages/cart_page.dart';
 import 'package:database_project/services/data_provider.dart';
+import 'package:database_project/pages/add_product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,6 +41,13 @@ class ProductListPage extends StatelessWidget {
                   }).toList(),
                 );
               },
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/addProduct'); 
+              },
+              child: Icon(Icons.add),
+              backgroundColor: Colors.teal,
             ),
     );
   }

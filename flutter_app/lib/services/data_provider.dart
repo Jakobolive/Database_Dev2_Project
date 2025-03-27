@@ -44,6 +44,21 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> addProduct(Map<String, dynamic> productData) async {
+    try {
+      final response = await supabase.from('product_table').insert(productData).select();
+      if (response == null || response.isEmpty) {
+        throw Exception('Failed to add product: No data returned');
+      }
+
+      _products.add(response[0]);
+      notifyListeners();
+      print("✅ Product added successfully!");
+    } catch (e) {
+      print("❌ Error adding product: $e");
+    }
+  }
+
   // Function to get a product by its ID
   Future<Map<String, dynamic>?> getProductById(String productId) async {
     try {

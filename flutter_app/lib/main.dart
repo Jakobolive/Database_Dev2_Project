@@ -47,12 +47,12 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/login', // Start at login page
       routes: {
-        '/add-product': (context) => AddProductPage(),
+        '/addProduct': (context) => AddProductPage(),
         '/cart': (context) => CartPage(),
         // '/': (context) => HomePage(),
         '/label-preview': (context) => LabelPreviewPage(),
         '/login': (context) => LoginPage(),
-        //'/product-list': (context) => ProductListPage(),
+        '/product-list': (context) => ProductListPage(),
         //'/reports': (context) => ReportingPage(),
         '/': (context) => MainScreen(),
       },
