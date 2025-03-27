@@ -48,8 +48,8 @@ class DataProvider extends ChangeNotifier {
   Future<Map<String, dynamic>?> getProductById(String productId) async {
     try {
       final product = _products.firstWhere(
-          (product) => product['product_id'] == productId,
-          orElse: () => null);
+        (product) => product['product_id'] == productId,
+      );
 
       if (product == null) {
         final response = await supabase
