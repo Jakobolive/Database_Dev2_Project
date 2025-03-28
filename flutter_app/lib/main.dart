@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:database_project/pages/add_product_page.dart';
 import 'package:database_project/pages/cart_page.dart';
-import 'package:database_project/pages/home_page.dart';
-import 'package:database_project/pages/label_preview_page.dart';
 import 'package:database_project/pages/login_page.dart';
 import 'package:database_project/pages/product_list_page.dart';
 import 'package:database_project/pages/reporting_page.dart';
@@ -49,11 +47,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/addProduct': (context) => AddProductPage(),
         '/cart': (context) => CartPage(),
-        // '/': (context) => HomePage(),
-        '/label-preview': (context) => LabelPreviewPage(),
         '/login': (context) => LoginPage(),
         '/product-list': (context) => ProductListPage(),
-        //'/reports': (context) => ReportingPage(),
         '/': (context) => MainScreen(),
       },
     );

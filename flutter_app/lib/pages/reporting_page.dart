@@ -132,56 +132,6 @@ class _ReportingPageState extends State<ReportingPage> {
               }).toList(),
             ),
             SizedBox(height: 20),
-
-            // Text Summary
-            // Card(
-            //   elevation: 4,
-            //   shape: RoundedRectangleBorder(
-            //     borderRadius: BorderRadius.circular(12),
-            //   ),
-            //   child: Padding(
-            //     padding: const EdgeInsets.all(16.0),
-            //     child: Column(
-            //       crossAxisAlignment: CrossAxisAlignment.start,
-            //       children: [
-            //         Text(
-            //           'Report for ${_selectedPeriod.replaceAll('_', ' ')}',
-            //           style:
-            //               TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            //         ),
-            //         SizedBox(height: 10),
-            //         Text(
-            //           'Total Profit: \$${_totalProfit.toStringAsFixed(2)}',
-            //           style: TextStyle(fontSize: 16),
-            //         ),
-            //         Text(
-            //           'Items Sold: $_totalItemsSold',
-            //           style: TextStyle(fontSize: 16),
-            //         ),
-            //         Divider(),
-            //         // Display product summary (variations and their quantities sold)
-            //         ..._productSummary.entries.map((entry) {
-            //           String size = entry.key; // The size (variation)
-            //           int quantitySold =
-            //               entry.value; // Quantity sold for that size
-
-            //           return Column(
-            //             crossAxisAlignment: CrossAxisAlignment.start,
-            //             children: [
-            //               // Display size (variation) and quantity sold
-            //               Text(
-            //                 '$size - Quantity Sold: $quantitySold',
-            //                 style: TextStyle(
-            //                     fontSize: 16, fontWeight: FontWeight.bold),
-            //               ),
-            //               SizedBox(height: 5),
-            //             ],
-            //           );
-            //         }).toList(),
-            //       ],
-            //     ),
-            //   ),
-            // ),
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(

@@ -12,7 +12,6 @@ class _SaleTrackingPageState extends State<SaleTrackingPage> {
   @override
   void initState() {
     super.initState();
-    // Call the fetchProfiles method here to load profiles when the page is first loaded.
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
     dataProvider.fetchProducts();
   }

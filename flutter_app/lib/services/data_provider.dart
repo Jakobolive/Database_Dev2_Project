@@ -22,7 +22,7 @@ class DataProvider extends ChangeNotifier {
     _loggedInUser = userData;
   }
 
-  // Fetch products and variations from Supabase.
+  //Fetch products and variations from Supabase.
   Future<void> fetchProducts() async {
     try {
       print("Fetching products...");
