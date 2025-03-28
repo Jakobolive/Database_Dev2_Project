@@ -14,6 +14,7 @@
 //   @override
 //   void initState() {
 //     super.initState();
+//     // Fetch products from the data provider
 //     final dataProvider = Provider.of<DataProvider>(context, listen: false);
 //     dataProvider.fetchProducts();
 //   }
@@ -25,9 +26,10 @@
 //     return Scaffold(
 //       backgroundColor: Colors.white,
 //       appBar: AppBar(
-//           title: const Text("Product List"),
-//           centerTitle: true,
-//           backgroundColor: Colors.teal),
+//         title: const Text("Product List"),
+//         centerTitle: true,
+//         backgroundColor: Colors.teal,
+//       ),
 //       body: dataProvider.products.isEmpty
 //           ? Center(child: Text("No products found or still loading..."))
 //           : ListView.builder(
@@ -47,7 +49,9 @@
 //                           Text("${variation['size']} - \$${variation['cost']}"),
 //                       subtitle: Text("Stock: ${variation['stock']}"),
 //                       onTap: () async {
-//                         await _showProductDetails(context, product, variation);
+//                         // Show product details and generate label
+//                         await _showProductDetails(
+//                             context, product, variation, dataProvider);
 //                       },
 //                     );
 //                   }).toList(),
@@ -56,6 +60,7 @@
 //             ),
 //       floatingActionButton: FloatingActionButton(
 //         onPressed: () {
+//           // Navigate to add product page
 //           Navigator.pushNamed(context, '/addProduct');
 //         },
 //         child: Icon(Icons.add),
@@ -64,8 +69,15 @@
 //     );
 //   }
 
-//   Future<void> _showProductDetails(BuildContext context,
-//       Map<String, dynamic> product, Map<String, dynamic> variation) async {
+//   Future<void> _showProductDetails(
+//       BuildContext context,
+//       Map<String, dynamic> product,
+//       Map<String, dynamic> variation,
+//       DataProvider dataProvider) async {
+//     // Fetch the ingredientsWithNutrients for this product
+//     final ingredientsWithNutrients =
+//         _getIngredientsWithNutrientsForProduct(product, dataProvider);
+
 //     showDialog(
 //       context: context,
 //       builder: (context) {
@@ -81,12 +93,12 @@
 //               ElevatedButton(
 //                 onPressed: () {
 //                   Navigator.pop(context);
-//                   // Navigate to label generation page with the variation data.
+//                   // Navigate to label generation page with the variation data and nutritional data.
 //                   Navigator.push(
 //                     context,
 //                     MaterialPageRoute(
-//                       builder: (context) =>
-//                           LabelGenerationPage(product, variation),
+//                       builder: (context) => LabelGenerationPage(
+//                           product, variation, ingredientsWithNutrients),
 //                     ),
 //                   );
 //                 },
@@ -98,13 +110,147 @@
 //       },
 //     );
 //   }
+
+//   // Function to get ingredients with nutrients for a product
+// //   List<Map<String, dynamic>> _getIngredientsWithNutrientsForProduct(
+// //       Map<String, dynamic> product, DataProvider dataProvider) {
+// //     // Find related recipe for this product
+// //     var relatedRecipe = dataProvider.recipes.firstWhere(
+// //       (recipe) =>
+// //           recipe['recipe_id'] ==
+// //           product['recipe_id'], // Ensure key matches your schema
+// //       orElse: () => {},
+// //     );
+
+// //     if (relatedRecipe.isEmpty) {
+// //       print("No related recipe found for product: ${product['product_id']}");
+// //       return [];
+// //     }
+
+// //     // Find related ingredients for this recipe
+// //     var relatedIngredients = dataProvider.recipeIngredients
+// //         .where((ingredient) =>
+// //             ingredient['recipe_id'] == relatedRecipe['recipe_id'])
+// //         .toList();
+
+// //     if (relatedIngredients.isEmpty) {
+// //       print(
+// //           "No related ingredients found for recipe: ${relatedRecipe['recipe_id']}");
+// //       return [];
+// //     }
+
+// //     // Fetch nutrient data for each ingredient
+// //     List<Map<String, dynamic>> ingredientsWithNutrients = [];
+
+// //     for (var ingredient in relatedIngredients) {
+// //       var relatedIngredient = dataProvider.ingredients.firstWhere(
+// //         (ing) => ing['ingredient_id'] == ingredient['ingredient_id'],
+// //         orElse: () => {},
+// //       );
+
+// //       if (relatedIngredient.isEmpty) {
+// //         print(
+// //             "No related ingredient found for ingredient_id: ${ingredient['ingredient_id']}");
+// //         continue;
+// //       }
+
+// //       // Find all nutrient data entries for the ingredient
+// //       var relatedNutrientData = dataProvider.nutrientData
+// //           .where((nutrient) =>
+// //               nutrient['nutrient_id'] == relatedIngredient['nutrient_id'])
+// //           .toList();
+
+// //       if (relatedNutrientData.isEmpty) {
+// //         print(
+// //             "No related nutrient data found for nutrient_id: ${relatedIngredient['nutrient_id']}");
+// //         continue;
+// //       }
+
+// //       ingredientsWithNutrients.add({
+// //         'ingredient': relatedIngredient,
+// //         'nutrients': relatedNutrientData,
+// //       });
+// //     }
+
+// //     return ingredientsWithNutrients;
+// //   }
+// // }
+// // Function to get ingredients with nutrients for a product
+//   List<Map<String, dynamic>> _getIngredientsWithNutrientsForProduct(
+//       Map<String, dynamic> product, DataProvider dataProvider) {
+//     // Check if the product has a valid recipe_id
+//     if (product['recipe_id'] == null || product['recipe_id'] == '') {
+//       print("No recipe ID for product: ${product['product_id']}");
+//       return [];
+//     }
+//     var relatedRecipe = dataProvider.recipes.firstWhere(
+//       (recipe) =>
+//           recipe['recipe_id'] == product['recipe_id'], // Ensure key matches your schema
+//       orElse: () => {},
+//     );
+
+//     if (relatedRecipe.isEmpty) {
+//       print("No related recipe found for product: ${product['product_id']}");
+//       return [];
+//     }
+
+//     // Find related ingredients for this recipe
+//     var relatedIngredients = dataProvider.recipeIngredients
+//         .where((ingredient) =>
+//             ingredient['ingredient_id'] == relatedRecipe['ingredient_id'])
+//         .toList();
+
+//     if (relatedIngredients.isEmpty) {
+//       print(
+//           "No related ingredients found for recipe: ${relatedRecipe['recipe_id']}");
+//       return [];
+//     }
+
+//     // Fetch nutrient data for each ingredient
+//     List<Map<String, dynamic>> ingredientsWithNutrients = [];
+
+//     for (var ingredient in relatedIngredients) {
+//       var relatedIngredient = dataProvider.ingredients.firstWhere(
+//         (ing) => ing['ingredient_id'] == ingredient['ingredient_id'],
+//         orElse: () => {},
+//       );
+
+//       if (relatedIngredient.isEmpty) {
+//         print(
+//             "No related ingredient found for ingredient_id: ${ingredient['ingredient_id']}");
+//         continue;
+//       }
+
+//       // Find nutrient data from API result
+//       var relatedNutrientData = dataProvider.nutrientData
+//           .where((nutrient) =>
+//               nutrient['ingredient_id'] == relatedIngredient['ingredient_id'])
+//           .toList();
+
+//       if (relatedNutrientData.isEmpty) {
+//         print(
+//             "No related nutrient data found for ingredient_id: ${relatedIngredient['ingredient_id']}");
+//         continue;
+//       }
+
+//       ingredientsWithNutrients.add({
+//         'ingredient': relatedIngredient,
+//         'nutrients': relatedNutrientData,
+//       });
+//     }
+
+//     return ingredientsWithNutrients;
+//   }
 // }
 
 // class LabelGenerationPage extends StatelessWidget {
 //   final Map<String, dynamic> variation;
 //   final Map<String, dynamic> product;
+//   final List<Map<String, dynamic>>
+//       ingredientsWithNutrients; // Nutritional data for the product
 
-//   LabelGenerationPage(this.product, this.variation);
+//   LabelGenerationPage(
+//       this.product, this.variation, this.ingredientsWithNutrients);
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -120,12 +266,21 @@
 //           crossAxisAlignment: CrossAxisAlignment.start,
 //           children: [
 //             // Display product data
-//             Text("${product['product_name']}"),
+//             Text("${product['product_name']}", style: TextStyle(fontSize: 20)),
 //             Text("${product['description']}"),
 //             SizedBox(height: 20),
 //             // Display variation data
-//             Text("${variation['size']}"),
-//             Text("\$${variation['cost']}"),
+//             Text("Size: ${variation['size']}", style: TextStyle(fontSize: 16)),
+//             Text("Price: \$${variation['cost']}",
+//                 style: TextStyle(fontSize: 16)),
+//             SizedBox(height: 20),
+
+//             // Display nutritional values
+//             Text("Nutritional Information:",
+//                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+//             SizedBox(height: 10),
+//             ..._buildNutritionalValues(),
+
 //             SizedBox(height: 20),
 //             ElevatedButton(
 //               onPressed: () async {
@@ -146,6 +301,14 @@
 //                             style: pw.TextStyle(fontSize: 16)),
 //                         pw.Text("\$${variation['cost']}",
 //                             style: pw.TextStyle(fontSize: 14)),
+//                         pw.SizedBox(height: 20),
+
+//                         // Add nutritional information to PDF
+//                         pw.Text("Nutritional Information:",
+//                             style: pw.TextStyle(
+//                                 fontSize: 18, fontWeight: pw.FontWeight.bold)),
+//                         pw.SizedBox(height: 10),
+//                         ..._buildNutritionalValuesForPDF(),
 //                       ],
 //                     );
 //                   },
@@ -167,7 +330,74 @@
 //       ),
 //     );
 //   }
+
+//   // Function to build a list of nutritional information for display
+//   List<Widget> _buildNutritionalValues() {
+//     List<Widget> nutritionalWidgets = [];
+
+//     for (var ingredientWithNutrient in ingredientsWithNutrients) {
+//       var ingredient = ingredientWithNutrient['ingredient'];
+//       var nutrients = ingredientWithNutrient['nutrients'];
+
+//       nutritionalWidgets.add(
+//         Text("${ingredient['ingredient_name']}",
+//             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+//       );
+
+//       for (var nutrient in nutrients) {
+//         nutritionalWidgets.add(
+//           Text(
+//             "Calories: ${nutrient['calories'] ?? 'N/A'} kcal\n"
+//             "Protein: ${nutrient['protein'] ?? 'N/A'} g\n"
+//             "Carbohydrates: ${nutrient['carbohydrates'] ?? 'N/A'} g\n"
+//             "Fat: ${nutrient['fat'] ?? 'N/A'} g\n"
+//             "Sugar: ${nutrient['sugar'] ?? 'N/A'} g\n"
+//             "Fiber: ${nutrient['fiber'] ?? 'N/A'} g\n"
+//             "Sodium: ${nutrient['sodium'] ?? 'N/A'} mg\n"
+//             "Cholesterol: ${nutrient['cholesterol'] ?? 'N/A'} mg",
+//             style: TextStyle(fontSize: 14),
+//           ),
+//         );
+//       }
+//       nutritionalWidgets.add(SizedBox(height: 10));
+//     }
+//     return nutritionalWidgets;
+//   }
+
+// // Function to build the nutritional information for PDF generation
+//   List<pw.Widget> _buildNutritionalValuesForPDF() {
+//     List<pw.Widget> nutritionalWidgets = [];
+
+//     for (var ingredientWithNutrient in ingredientsWithNutrients) {
+//       var ingredient = ingredientWithNutrient['ingredient'];
+//       var nutrients = ingredientWithNutrient['nutrients'];
+
+//       nutritionalWidgets.add(
+//         pw.Text("${ingredient['ingredient_name']}",
+//             style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+//       );
+
+//       for (var nutrient in nutrients) {
+//         nutritionalWidgets.add(
+//           pw.Text(
+//             "Calories: ${nutrient['calories'] ?? 'N/A'} kcal\n"
+//             "Protein: ${nutrient['protein'] ?? 'N/A'} g\n"
+//             "Carbohydrates: ${nutrient['carbohydrates'] ?? 'N/A'} g\n"
+//             "Fat: ${nutrient['fat'] ?? 'N/A'} g\n"
+//             "Sugar: ${nutrient['sugar'] ?? 'N/A'} g\n"
+//             "Fiber: ${nutrient['fiber'] ?? 'N/A'} g\n"
+//             "Sodium: ${nutrient['sodium'] ?? 'N/A'} mg\n"
+//             "Cholesterol: ${nutrient['cholesterol'] ?? 'N/A'} mg",
+//             style: pw.TextStyle(fontSize: 12),
+//           ),
+//         );
+//       }
+//       nutritionalWidgets.add(pw.SizedBox(height: 10));
+//     }
+//     return nutritionalWidgets;
+//   }
 // }
+import 'package:database_project/models/data_model.dart';
 import 'package:database_project/services/data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -186,7 +416,7 @@ class _ProductListPageState extends State<ProductListPage> {
     super.initState();
     // Fetch products from the data provider
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
-    dataProvider.fetchProducts();
+    dataProvider.fetchProductsData();
   }
 
   @override
@@ -246,7 +476,7 @@ class _ProductListPageState extends State<ProductListPage> {
       DataProvider dataProvider) async {
     // Fetch the ingredientsWithNutrients for this product
     final ingredientsWithNutrients =
-        _getIngredientsWithNutrientsForProduct(product, dataProvider);
+        await dataProvider.getIngredientsWithNutrientsForProduct(product);
 
     showDialog(
       context: context,
@@ -281,96 +511,71 @@ class _ProductListPageState extends State<ProductListPage> {
     );
   }
 
-  // Function to get ingredients with nutrients for a product
-  // List<Map<String, dynamic>> _getIngredientsWithNutrientsForProduct(
-  //     Map<String, dynamic> product, DataProvider dataProvider) {
-  //   // Find related recipe and ingredients for this product
-  //   var relatedRecipe = dataProvider.recipes.firstWhere(
-  //       (recipe) => recipe['product_id'] == product['id'],
-  //       orElse: () => <String, dynamic>{});
+//   List<Map<String, dynamic>> _getIngredientsWithNutrientsForProduct(
+//       Map<String, dynamic> product, DataProvider dataProvider) {
+//     // Check if the product has a valid recipe_id
+//     if (product['recipe_id'] == null || product['recipe_id'] == '') {
+//       print("No recipe ID for product: ${product['product_id']}");
+//       return [];
+//     }
+//     var relatedRecipe = dataProvider.recipes.firstWhere(
+//       (recipe) =>
+//           recipe['recipe_id'] == product['recipe_id'], // Ensure key matches your schema
+//       orElse: () => {},
+//     );
 
-  //   var relatedIngredients = dataProvider.recipeIngredients
-  //       .where((ingredient) => ingredient['recipe_id'] == relatedRecipe?['id'])
-  //       .toList();
+//     if (relatedRecipe.isEmpty) {
+//       print("No related recipe found for product: ${product['product_id']}");
+//       return [];
+//     }
 
-  //   // Fetch nutrient data for each ingredient
-  //   return relatedIngredients.map((ingredient) {
-  //     var relatedIngredient = dataProvider.ingredients
-  //         .firstWhere((ing) => ing['id'] == ingredient['ingredient_id']);
-  //     var relatedNutrientData = dataProvider.nutrientData.firstWhere(
-  //         (nutrient) => nutrient['ingredient_id'] == relatedIngredient['id']);
+//     // Find related ingredients for this recipe
+//     var relatedIngredients = dataProvider.recipeIngredients
+//         .where((ingredient) =>
+//             ingredient['ingredient_id'] == relatedRecipe['ingredient_id'])
+//         .toList();
 
-  //     return {
-  //       'ingredient': relatedIngredient,
-  //       'nutrients': relatedNutrientData,
-  //     };
-  //   }).toList();
-  // }
+//     if (relatedIngredients.isEmpty) {
+//       print(
+//           "No related ingredients found for recipe: ${relatedRecipe['recipe_id']}");
+//       return [];
+//     }
 
-  // Function to get ingredients with nutrients for a product
-  List<Map<String, dynamic>> _getIngredientsWithNutrientsForProduct(
-      Map<String, dynamic> product, DataProvider dataProvider) {
-    print(dataProvider.recipes);
-    print(dataProvider.recipeIngredients);
-    print(dataProvider.ingredients);
-    print(dataProvider.nutrientData);
-    // Find related recipe for this product
-    var relatedRecipe = dataProvider.recipes.firstWhere(
-      (recipe) => recipe['product_id'] == product['id'],
-      orElse: () => <String, dynamic>{}, // If no recipe is found, return null
-    );
+//     // Fetch nutrient data for each ingredient
+//     List<Map<String, dynamic>> ingredientsWithNutrients = [];
 
-    if (relatedRecipe == null) {
-      print("No related recipe found for product: ${product['id']}");
-      return []; // Return empty list if no related recipe is found
-    }
+//     for (var ingredient in relatedIngredients) {
+//       var relatedIngredient = dataProvider.ingredients.firstWhere(
+//         (ing) => ing['ingredient_id'] == ingredient['ingredient_id'],
+//         orElse: () => {},
+//       );
 
-    // Find related ingredients for this recipe
-    var relatedIngredients = dataProvider.recipeIngredients
-        .where((ingredient) => ingredient['recipe_id'] == relatedRecipe['id'])
-        .toList();
+//       if (relatedIngredient.isEmpty) {
+//         print(
+//             "No related ingredient found for ingredient_id: ${ingredient['ingredient_id']}");
+//         continue;
+//       }
 
-    if (relatedIngredients.isEmpty) {
-      print("No related ingredients found for recipe: ${relatedRecipe['id']}");
-      return []; // Return empty list if no related ingredients are found
-    }
+//       // Find nutrient data from API result
+//       var relatedNutrientData = dataProvider.nutrientData
+//           .where((nutrient) =>
+//               nutrient['ingredient_id'] == relatedIngredient['ingredient_id'])
+//           .toList();
 
-    // Fetch nutrient data for each ingredient
-    List<Map<String, dynamic>> ingredientsWithNutrients = [];
+//       if (relatedNutrientData.isEmpty) {
+//         print(
+//             "No related nutrient data found for ingredient_id: ${relatedIngredient['ingredient_id']}");
+//         continue;
+//       }
 
-    for (var ingredient in relatedIngredients) {
-      var relatedIngredient = dataProvider.ingredients.firstWhere(
-        (ing) => ing['id'] == ingredient['ingredient_id'],
-        orElse: () =>
-            <String, dynamic>{}, // Return null if ingredient is not found
-      );
+//       ingredientsWithNutrients.add({
+//         'ingredient': relatedIngredient,
+//         'nutrients': relatedNutrientData,
+//       });
+//     }
 
-      if (relatedIngredient == null) {
-        print(
-            "No related ingredient found for ingredient_id: ${ingredient['ingredient_id']}");
-        continue; // Skip this ingredient if not found
-      }
-
-      var relatedNutrientData = dataProvider.nutrientData.firstWhere(
-        (nutrient) => nutrient['ingredient_id'] == relatedIngredient['id'],
-        orElse: () =>
-            <String, dynamic>{}, // Return null if nutrient data is not found
-      );
-
-      if (relatedNutrientData == null) {
-        print(
-            "No related nutrient data found for ingredient_id: ${relatedIngredient['id']}");
-        continue; // Skip this ingredient if nutrient data is not found
-      }
-
-      ingredientsWithNutrients.add({
-        'ingredient': relatedIngredient,
-        'nutrients': relatedNutrientData,
-      });
-    }
-
-    return ingredientsWithNutrients;
-  }
+//     return ingredientsWithNutrients;
+//   }
 }
 
 class LabelGenerationPage extends StatelessWidget {
@@ -395,56 +600,49 @@ class LabelGenerationPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display product data
             Text("${product['product_name']}", style: TextStyle(fontSize: 20)),
             Text("${product['description']}"),
             SizedBox(height: 20),
-            // Display variation data
             Text("Size: ${variation['size']}", style: TextStyle(fontSize: 16)),
             Text("Price: \$${variation['cost']}",
                 style: TextStyle(fontSize: 16)),
             SizedBox(height: 20),
-
-            // Display nutritional values
             Text("Nutritional Information:",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
-            ..._buildNutritionalValues(),
+
+            // Using FutureBuilder to handle async data loading
+            FutureBuilder<Map<String, dynamic>>(
+              future: _buildNutritionalValues(ingredientsWithNutrients),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  final nutritionalData = snapshot.data!;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _displayNutritionalValues(nutritionalData),
+                  );
+                }
+              },
+            ),
 
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                // Generate PDF
+                final nutritionalData =
+                    await _buildNutritionalValues(ingredientsWithNutrients);
                 final pdf = pw.Document();
-
-                // Add content to the PDF
                 pdf.addPage(pw.Page(
                   build: (pw.Context context) {
                     return pw.Column(
-                      children: [
-                        pw.Text("${product['product_name']}",
-                            style: pw.TextStyle(fontSize: 18)),
-                        pw.Text("${product['description']}",
-                            style: pw.TextStyle(fontSize: 14)),
-                        pw.SizedBox(height: 20),
-                        pw.Text("${variation['size']}",
-                            style: pw.TextStyle(fontSize: 16)),
-                        pw.Text("\$${variation['cost']}",
-                            style: pw.TextStyle(fontSize: 14)),
-                        pw.SizedBox(height: 20),
-
-                        // Add nutritional information to PDF
-                        pw.Text("Nutritional Information:",
-                            style: pw.TextStyle(
-                                fontSize: 18, fontWeight: pw.FontWeight.bold)),
-                        pw.SizedBox(height: 10),
-                        ..._buildNutritionalValuesForPDF(),
-                      ],
+                      children: _buildNutritionalValuesForPDF(nutritionalData),
                     );
                   },
                 ));
 
-                // Save or share the PDF
                 await Printing.layoutPdf(
                   onLayout: (PdfPageFormat format) async => pdf.save(),
                 );
@@ -461,39 +659,65 @@ class LabelGenerationPage extends StatelessWidget {
     );
   }
 
-  // Function to build a list of nutritional information for display
-  List<Widget> _buildNutritionalValues() {
-    List<Widget> nutritionalWidgets = [];
+  Future<Map<String, dynamic>> _buildNutritionalValues(
+      List<Map<String, dynamic>> ingredientsWithNutrients) async {
+    double totalCalories = 0, totalProtein = 0, totalCarbohydrates = 0;
+    double totalFat = 0, totalSugar = 0, totalFiber = 0;
+    double totalSodium = 0, totalCholesterol = 0;
+    List<String> ingredientList = [];
 
-    for (var ingredientWithNutrient in ingredientsWithNutrients) {
-      var ingredient = ingredientWithNutrient['ingredient'];
-      var nutrientData = ingredientWithNutrient['nutrients'];
-
-      // Add nutritional info to the list
-      nutritionalWidgets.add(
-        Text(
-            "${ingredient['name']}: ${nutrientData['value']} ${nutrientData['unit']}",
-            style: TextStyle(fontSize: 14)),
-      );
+    for (var ingredient in ingredientsWithNutrients) {
+      ingredientList.add(ingredient['ingredient_name'] ?? 'Unknown Ingredient');
+      totalCalories += ingredient['calories'] ?? 0;
+      totalProtein += ingredient['protein'] ?? 0;
+      totalCarbohydrates += ingredient['carbohydrates'] ?? 0;
+      totalFat += ingredient['fat'] ?? 0;
+      totalSugar += ingredient['sugar'] ?? 0;
+      totalFiber += ingredient['fiber'] ?? 0;
+      totalSodium += ingredient['sodium'] ?? 0;
+      totalCholesterol += ingredient['cholesterol'] ?? 0;
     }
-    return nutritionalWidgets;
+
+    return {
+      'ingredient_names': ingredientList,
+      'total_calories': totalCalories,
+      'total_protein': totalProtein,
+      'total_carbohydrates': totalCarbohydrates,
+      'total_fat': totalFat,
+      'total_sugar': totalSugar,
+      'total_fiber': totalFiber,
+      'total_sodium': totalSodium,
+      'total_cholesterol': totalCholesterol,
+    };
   }
 
-  // Function to build the nutritional information for PDF generation
-  List<pw.Widget> _buildNutritionalValuesForPDF() {
-    List<pw.Widget> nutritionalWidgets = [];
+  List<Widget> _displayNutritionalValues(Map<String, dynamic> nutritionalData) {
+    return [
+      Text("Ingredients: ${nutritionalData['ingredient_names'].join(', ')}"),
+      Text("Total Calories: ${nutritionalData['total_calories']} kcal"),
+      Text("Total Protein: ${nutritionalData['total_protein']} g"),
+      Text("Total Carbohydrates: ${nutritionalData['total_carbohydrates']} g"),
+      Text("Total Fat: ${nutritionalData['total_fat']} g"),
+      Text("Total Sugar: ${nutritionalData['total_sugar']} g"),
+      Text("Total Fiber: ${nutritionalData['total_fiber']} g"),
+      Text("Total Sodium: ${nutritionalData['total_sodium']} mg"),
+      Text("Total Cholesterol: ${nutritionalData['total_cholesterol']} mg"),
+    ];
+  }
 
-    for (var ingredientWithNutrient in ingredientsWithNutrients) {
-      var ingredient = ingredientWithNutrient['ingredient'];
-      var nutrientData = ingredientWithNutrient['nutrients'];
-
-      // Add nutritional info to the list
-      nutritionalWidgets.add(
-        pw.Text(
-            "${ingredient['name']}: ${nutrientData['value']} ${nutrientData['unit']}",
-            style: pw.TextStyle(fontSize: 12)),
-      );
-    }
-    return nutritionalWidgets;
+  List<pw.Widget> _buildNutritionalValuesForPDF(
+      Map<String, dynamic> nutritionalData) {
+    return [
+      pw.Text("Ingredients: ${nutritionalData['ingredient_names'].join(', ')}"),
+      pw.Text("Total Calories: ${nutritionalData['total_calories']} kcal"),
+      pw.Text("Total Protein: ${nutritionalData['total_protein']} g"),
+      pw.Text(
+          "Total Carbohydrates: ${nutritionalData['total_carbohydrates']} g"),
+      pw.Text("Total Fat: ${nutritionalData['total_fat']} g"),
+      pw.Text("Total Sugar: ${nutritionalData['total_sugar']} g"),
+      pw.Text("Total Fiber: ${nutritionalData['total_fiber']} g"),
+      pw.Text("Total Sodium: ${nutritionalData['total_sodium']} mg"),
+      pw.Text("Total Cholesterol: ${nutritionalData['total_cholesterol']} mg"),
+    ];
   }
 }

@@ -1,10 +1,9 @@
 class Product {
   final String id;
   final String name;
-  final List<dynamic> variations;
-  final dynamic
-      recipe; // You can replace dynamic with a specific class type if needed
-  final List<Map<String, dynamic>> ingredientsWithNutrients;
+  final List<ProductVariation> variations;
+  final Recipe recipe;
+  final List<IngredientWithNutrient> ingredientsWithNutrients;
 
   Product({
     required this.id,
@@ -13,6 +12,44 @@ class Product {
     required this.recipe,
     required this.ingredientsWithNutrients,
   });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    List<ProductVariation> variations = (json['variations'] as List<dynamic>)
+        .map((variationJson) => ProductVariation.fromJson(variationJson))
+        .toList();
+
+    List<IngredientWithNutrient> ingredientsWithNutrients = [];
+    if (json['recipe'] != null && json['recipe']['ingredients'] != null) {
+      final recipeIngredients = json['recipe']['ingredients'] as List<dynamic>;
+
+      for (var ingredientJson in recipeIngredients) {
+        if (ingredientJson['ingredient_table'] != null &&
+            ingredientJson['ingredient_table']['nutrient_data_table'] != null) {
+          final ingredient =
+              Ingredient.fromJson(ingredientJson['ingredient_table']);
+
+          final nutrientList = ingredientJson['ingredient_table']
+              ['nutrient_data_table'] as List<dynamic>;
+
+          for (var nutrientJson in nutrientList) {
+            final nutrientData = NutrientData.fromJson(nutrientJson);
+            ingredientsWithNutrients.add(IngredientWithNutrient(
+              ingredient: ingredient,
+              nutrientData: nutrientData,
+            ));
+          }
+        }
+      }
+    }
+
+    return Product(
+      id: json['id'],
+      name: json['name'],
+      variations: variations,
+      recipe: Recipe.fromJson(json['recipe']),
+      ingredientsWithNutrients: ingredientsWithNutrients,
+    );
+  }
 }
 
 class ProductVariation {
@@ -25,6 +62,14 @@ class ProductVariation {
     required this.size,
     required this.price,
   });
+
+  factory ProductVariation.fromJson(Map<String, dynamic> json) {
+    return ProductVariation(
+      id: json['id'],
+      size: json['size'],
+      price: json['price'].toDouble(),
+    );
+  }
 }
 
 class Recipe {
@@ -35,16 +80,34 @@ class Recipe {
     required this.id,
     required this.ingredients,
   });
+
+  factory Recipe.fromJson(Map<String, dynamic> json) {
+    List<RecipeIngredient> ingredients = (json['ingredients'] as List<dynamic>)
+        .map((ingredientJson) => RecipeIngredient.fromJson(ingredientJson))
+        .toList();
+
+    return Recipe(
+      id: json['id'],
+      ingredients: ingredients,
+    );
+  }
 }
 
 class RecipeIngredient {
-  final String ingredientId; // Reference to the ingredient
-  final String recipeId; // Reference to the recipe
+  final String ingredientId;
+  final String recipeId;
 
   RecipeIngredient({
     required this.ingredientId,
     required this.recipeId,
   });
+
+  factory RecipeIngredient.fromJson(Map<String, dynamic> json) {
+    return RecipeIngredient(
+      ingredientId: json['ingredientId'],
+      recipeId: json['recipeId'],
+    );
+  }
 }
 
 class Ingredient {
@@ -52,7 +115,19 @@ class Ingredient {
   final String name;
   final String nutrientId;
 
-  Ingredient({required this.id, required this.name, required this.nutrientId});
+  Ingredient({
+    required this.id,
+    required this.name,
+    required this.nutrientId,
+  });
+
+  factory Ingredient.fromJson(Map<String, dynamic> json) {
+    return Ingredient(
+      id: json['id'],
+      name: json['name'],
+      nutrientId: json['nutrientId'],
+    );
+  }
 }
 
 class NutrientData {
@@ -65,6 +140,14 @@ class NutrientData {
     required this.value,
     required this.nutrientName,
   });
+
+  factory NutrientData.fromJson(Map<String, dynamic> json) {
+    return NutrientData(
+      id: json['id'],
+      value: json['amount'].toDouble(),
+      nutrientName: json['nutrient_name'],
+    );
+  }
 }
 
 class IngredientWithNutrient {

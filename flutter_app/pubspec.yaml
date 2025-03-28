@@ -36,6 +36,7 @@ dependencies:
   fl_chart: ^0.63.0  # For displaying bar charts
   pdf: ^3.6.0
   printing: ^5.8.0
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:
