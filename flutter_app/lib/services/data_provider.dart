@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:database_project/models/data_model.dart';
 
 class DataProvider extends ChangeNotifier {
   final SupabaseClient supabase = Supabase.instance.client;
@@ -11,9 +12,20 @@ class DataProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _variations = [];
   List<Map<String, dynamic>> _cart = [];
 
+  List<Map<String, dynamic>> _recipes = [];
+  List<Map<String, dynamic>> _recipeIngredients = [];
+  List<Map<String, dynamic>> _ingredients = [];
+  List<Map<String, dynamic>> _nutrientData = [];
+
   List<Map<String, dynamic>> get products => _products;
   List<Map<String, dynamic>> get variations => _variations;
   List<Map<String, dynamic>> get cart => _cart;
+
+  // Add getters for the new lists
+  List<Map<String, dynamic>> get recipes => _recipes;
+  List<Map<String, dynamic>> get recipeIngredients => _recipeIngredients;
+  List<Map<String, dynamic>> get ingredients => _ingredients;
+  List<Map<String, dynamic>> get nutrientData => _nutrientData;
 
   double get totalPrice =>
       _cart.fold(0, (sum, item) => sum + (item['cost'] * item['quantity']));
@@ -34,13 +46,39 @@ class DataProvider extends ChangeNotifier {
           await supabase.from('product_variation_table').select();
       print("Variation Response: $variationResponse");
 
-      _products = productResponse;
-      _variations = variationResponse;
+      // _products = productResponse;
+      // _variations = variationResponse;
+      _products = productResponse as List<Map<String, dynamic>>;
+      _variations = variationResponse as List<Map<String, dynamic>>;
 
       notifyListeners();
       print("Data fetched successfully.");
     } catch (e) {
       print("Error fetching products: $e");
+    }
+  }
+
+  // Fetch recipes and related data from Supabase
+  Future<void> fetchRecipes() async {
+    try {
+      print("Fetching recipes...");
+      final recipeResponse = await supabase.from('recipes_table').select('*');
+      final recipeIngredientResponse =
+          await supabase.from('recipe_ingredients_table').select('*');
+      final ingredientResponse =
+          await supabase.from('ingredient_table').select('*');
+      final nutrientDataResponse =
+          await supabase.from('nutrient_data_table').select('*');
+
+      // Assign the fetched data to respective lists
+      _recipes = recipeResponse;
+      _recipeIngredients = recipeIngredientResponse;
+      _ingredients = ingredientResponse;
+      _nutrientData = nutrientDataResponse;
+
+      notifyListeners();
+    } catch (e) {
+      print("Error fetching recipes and ingredients: $e");
     }
   }
 
@@ -320,5 +358,106 @@ class DataProvider extends ChangeNotifier {
     } catch (e) {
       print("❌ Error adding product variation: $e");
     }
+  }
+
+  Future<void> fetchProductsWNutrients() async {
+    // Step 1: Fetch Products
+    final productResponse = await supabase.from('product_table').select('*');
+    if (productResponse != null) {
+      print(productResponse);
+    }
+    List<dynamic> products = productResponse.toList();
+
+// Step 2: Fetch Product Variations
+    final variationResponse =
+        await supabase.from('product_variation_table').select('*');
+    if (variationResponse != null) {
+      print(variationResponse);
+    }
+    List<dynamic> variations = variationResponse.toList();
+
+// Step 3: Fetch Recipes (for products that have recipes)
+    final recipeResponse = await supabase.from('recipes_table').select('*');
+    if (recipeResponse != null) {
+      print(recipeResponse);
+    }
+    List<dynamic> recipes = recipeResponse.toList();
+
+// Step 4: Fetch Recipe Ingredients
+    final recipeIngredientsResponse =
+        await supabase.from('recipe_ingredients_table').select('*');
+    if (recipeIngredientsResponse != null) {
+      print(recipeIngredientsResponse);
+    }
+    List<dynamic> recipeIngredients = recipeIngredientsResponse.toList();
+
+// Step 5: Fetch Ingredients (for the ingredients used in recipes)
+    final ingredientResponse =
+        await supabase.from('ingredient_table').select('*');
+    if (ingredientResponse != null) {
+      print(ingredientResponse);
+    }
+    List<dynamic> ingredients = ingredientResponse.toList();
+
+// Step 6: Fetch Nutrient Data (for ingredients)
+    final nutrientDataResponse =
+        await supabase.from('nutrient_data_table').select('*');
+    if (nutrientDataResponse != null) {
+      print(nutrientDataResponse);
+    }
+    List<dynamic> nutrientData = nutrientDataResponse.toList();
+
+    // Step 7: Combine Data in App (example combining product and variations)
+    List<Product> combinedProducts = products.map((product) {
+      var relatedVariations = variations
+          .where((varItem) => varItem['product_id'] == product['id'])
+          .toList();
+      var relatedRecipe = recipes.firstWhere(
+          (recipe) => recipe['product_id'] == product['id'],
+          orElse: () => <String, dynamic>{});
+      var relatedRecipeIngredients = recipeIngredients
+          .where(
+              (ingredient) => ingredient['recipe_id'] == relatedRecipe?['id'])
+          .toList();
+
+      // Now for each ingredient, fetch its nutritional data
+      var ingredientWithNutritionalValues = relatedRecipeIngredients
+          .map((ingredient) {
+            var relatedIngredient = ingredients.firstWhere(
+                (ing) => ing['id'] == ingredient['ingredient_id'],
+                orElse: () => null);
+            if (relatedIngredient == null) {
+              print(
+                  'No related ingredient found for ingredient_id: ${ingredient['ingredient_id']}');
+              return <String,
+                  dynamic>{}; // Return an empty map of the correct type
+            }
+
+            var relatedNutrientData = nutrientData.firstWhere(
+                (nutrient) =>
+                    nutrient['ingredient_id'] == relatedIngredient['id'],
+                orElse: () => null);
+            if (relatedNutrientData == null) {
+              print(
+                  'No related nutrient data found for ingredient_id: ${relatedIngredient['id']}');
+              return <String, dynamic>{}; // Handle this case appropriately
+            }
+
+            return {
+              'ingredient': relatedIngredient,
+              'nutrients': relatedNutrientData,
+            };
+          })
+          .toList()
+          .cast<Map<String, dynamic>>();
+
+      return Product(
+        id: product['id'],
+        name: product['name'],
+        variations: relatedVariations,
+        recipe: relatedRecipe,
+        ingredientsWithNutrients: ingredientWithNutritionalValues,
+      );
+    }).toList();
   }
 }
