@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:database_project/models/data_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class DataProvider extends ChangeNotifier {
   final SupabaseClient supabase = Supabase.instance.client;
-  // static const String apiKey = 'sWbeoShtz5Xg7L8kQ/Wkig==rWW8vkhoamojSzh3';
-  // static const String apiUrl =
-  //     'https://api.calorieninjas.com/v1/nutrition?query=';
+
   Map<String, dynamic>? _loggedInUser;
 
   Map<String, dynamic>? get loggedInUser => _loggedInUser;
@@ -34,23 +31,6 @@ class DataProvider extends ChangeNotifier {
 
   double get totalPrice =>
       _cart.fold(0, (sum, item) => sum + (item['cost'] * item['quantity']));
-
-  // Fetch nutritional data from CalorieNinjas API
-  // Future<Map<String, dynamic>> fetchNutritionalInfo(String query) async {
-  //   final response = await http.get(
-  //     Uri.parse('$apiUrl$query'),
-  //     headers: {'X-Api-Key': apiKey},
-  //   );
-
-  //   if (response.statusCode == 200) {
-  //     final data = json.decode(response.body);
-  //     print(response.body);
-  //     if (data['items'] != null && data['items'].isNotEmpty) {
-  //       return data['items'][0]; // Returns the first matched item
-  //     }
-  //   }
-  //   return {}; // Return an empty map if no data is found
-  // }
 
   void setUser(Map<String, dynamic> userData) {
     _loggedInUser = userData;
@@ -464,37 +444,6 @@ class DataProvider extends ChangeNotifier {
       return [];
     }
   }
-  //   // Now get nutrient data for each ingredient
-  //   List<Map<String, dynamic>> ingredientsWithNutrients = [];
-  //   for (var ingredient in productIngredients) {
-  //     // Check if 'ingredient_name' is null before using it
-  //     if (ingredient['ingredient_name'] == null) {
-  //       print("Ingredient name is null for ingredient: ${ingredient}");
-  //       continue; // Skip this ingredient if the name is null
-  //     }
-
-  //     var nutrientData =
-  //         await _fetchNutrientDataFromAPI(ingredient['ingredient_name']);
-
-  //     if (nutrientData != null && nutrientData.isNotEmpty) {
-  //       ingredientsWithNutrients.add({
-  //         'ingredient_name': nutrientData[0]['name'],
-  //         'calories': nutrientData[0]['calories'],
-  //         'protein': nutrientData[0]['protein_g'], // Adjusted for response
-  //         'carbohydrates': nutrientData[0]
-  //             ['carbohydrates_total_g'], // Adjusted for response
-  //         'fat': nutrientData[0]['fat_total_g'], // Adjusted for response
-  //         'sugar': nutrientData[0]['sugar_g'], // Adjusted for response
-  //         'fiber': nutrientData[0]['fiber_g'], // Adjusted for response
-  //         'sodium': nutrientData[0]['sodium_mg'], // Adjusted for response
-  //         'cholesterol': nutrientData[0]
-  //             ['cholesterol_mg'], // Adjusted for response
-  //       });
-  //     }
-  //   }
-
-  //   return ingredientsWithNutrients;
-  // }
 
 // Function to fetch nutrient data from the external API
   Future<List<Map<String, dynamic>>?> _fetchNutrientDataFromAPI(

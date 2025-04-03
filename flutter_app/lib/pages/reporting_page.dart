@@ -28,10 +28,6 @@ class _ReportingPageState extends State<ReportingPage> {
     final report = await dataProvider.fetchSalesReport(_selectedPeriod);
 
     setState(() {
-      // _totalProfit = report['totalProfit'];
-      // _totalItemsSold = report['totalItemsSold'];
-      // _productSummary = report['productSales'] ?? {};
-      // _barData = _generateChartData(report['dailySales'] ?? {});
       _totalProfit = report['totalProfit'];
       _totalItemsSold = report['totalItemsSold'];
       _productSummary = report['productSummary'] ?? {}; // Correct key
